@@ -9,9 +9,14 @@
    详见 `../../docs/DEV_GUIDE.md` §5.3（✅ 真机验证）
 
 ## 构建
-需要 Android SDK（`%LOCALAPPDATA%\Android\Sdk`，build-tools + platforms）。
+需要 Android SDK build-tools + platforms（aapt2/d8/zipalign/apksigner）。未装过 Android Studio 时：
+下载 [commandline tools](https://developer.android.com/studio#command-line-tools-only)，然后
+`sdkmanager "build-tools;34.0.0" "platforms;android-34"`（默认安装到 `%LOCALAPPDATA%\Android\Sdk`，即 build_probe.py 的查找路径）。
 ```bash
-# 1) 把你的应用包放到 assets/com.rtos.pkg（改 src/.../MainService.java 里 preparePkg 的长度校验）
+# 1) 把你的应用包放到 assets/com.rtos.pkg（目录需自建；换包后无需改代码——
+#    preparePkg 现按 asset 实际长度对齐）：
+mkdir -p assets && cp <你的应用>/bundle.pkg assets/com.rtos.pkg
+# 2) （可选）要注册桌面图标：assets/icon_<目标包名> + MainService.fireOp4AndUnlock() 末尾 icons[][] 数组
 # 2) （可选）要注册图标：assets/icon_<目标包名> + MainService.fireOp4AndUnlock() 末尾 icons[][] 数组
 python build_probe.py   # 产物 build/FtProbe18.apk
 adb install -r build/FtProbe18.apk
