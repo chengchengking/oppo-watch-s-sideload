@@ -1,0 +1,20 @@
+description: OPPO Watch S (OWW262) 466x466 circle AMOLED
+
+vendorID: 0x0000
+productID: 0x0000
+
+screen:
+  width: 466 # pixels
+  height: 466 # pixels
+  dpi: 326 # pixels per inch
+  shape: circle # screen shape
+
+ui:
+  font-family: sans-serif
+  font-size: 32 # px
+  font-map: true
+
+emulator:
+  launcher: launcher
+  global-assets: default-global
+  surface: surface/surface-466x466.json
