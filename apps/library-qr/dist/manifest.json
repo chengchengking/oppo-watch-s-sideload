@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "manifestVersion": 1,
+    "productID": 0,
+    "vendorID": 0
+  },
+  "package": "com.rtos.libraryqr",
+  "type": "app",
+  "versionCode": 11,
+  "versionName": "1.8.1"
+}

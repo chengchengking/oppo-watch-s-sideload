@@ -1,0 +1,19 @@
+{
+  "package": "com.rtos.libraryqr",
+  "name": "合肥读者证",
+  "icon": "/assets/icon.png",
+  "versionName": "1.8.1",
+  "versionCode": 11,
+  "features": [],
+  "router": {
+    "entry": "main",
+    "pages": {
+      "main": {
+        "component": "index"
+      }
+    }
+  },
+  "config": {
+    "designWidth": 466
+  }
+}

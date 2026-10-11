@@ -1,0 +1,253 @@
+<template>
+  <div class="page" style="{{pageStyle}}" on:click="refreshNow" on:longpress="toggleInverted">
+    <qrcode if="{{!inverted}}" class="code" :value="qr"/>
+    <qrcode if="{{inverted}}" class="code-inv" :value="qr"/>
+  </div>
+</template>
+
+<style>
+  /* 整屏白底/黑底 = 最大静区;码体 370px:按用户要求放大 2 个模块,四角尖溢出圆边
+     约 1.6 模块——三个定位角的中心扫描线(1:1:3:1:1)完整在圆内,解码成立;
+     定位角最外圈角部模块被圆切(定位图案数值确定,不需从图读取),右下数据角
+     由 L 级纠错兜底。若现场识别不佳,回退值:344(仅角尖溢出)或 330(全内接)。
+     长按切换反色(AMOLED 省电),模式存 storage,记忆最近一次选择。
+     注意:动态 class 绑定在 qrcode 组件上会导致不渲染(v1.8.0 教训),
+     正/反色必须用双元素 if 切换 + 静态类。 */
+  .page {
+    width: 466px;
+    height: 466px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+  }
+  .code {
+    width: 370px;
+    height: 370px;
+    color: #000000;
+    background-color: #ffffff;
+  }
+  .code-inv {
+    width: 370px;
+    height: 370px;
+    color: #ffffff;
+    background-color: #000000;
+  }
+</style>
+
+<script>
+import config from './config.js'
+import network from '@system.network'
+import cipher from '@system.cipher'
+import storage from '@system.storage'
+import fetch from '@system.fetch'
+import brightness from '@system.brightness'
+
+export default {
+  data: {
+    qr: '',
+    status: '启动中…',
+    hint: '点击屏幕立即刷新',
+    offsetMs: 0,
+    inverted: false,
+    pageStyle: 'background-color:#ffffff'
+  },
+  timer: null,
+  wakeTimer: null,
+  onShow() {
+    try {
+      const saved = storage.get('clockOffsetMs')
+      if (typeof saved === 'number') this.offsetMs = saved
+      const inv = storage.get('inverted')
+      if (typeof inv === 'boolean') this.inverted = inv
+    } catch (e) {}
+    this.applyMode()
+    this.keepScreenAlive()
+    this.start()
+    // 心跳:每 15s 无超时点亮,对抗翻腕/离腕息屏(等价于6月版的重唤醒广播)
+    this.wakeTimer = setInterval(() => {
+      try { brightness.wakeScreenOn({ screenOn: true }) } catch (e) {}
+    }, 15000)
+  },
+  applyMode() {
+    this.pageStyle = this.inverted ? 'background-color:#000000' : 'background-color:#ffffff'
+  },
+  onHide() {
+    this.stop()
+    this.releaseScreen()
+  },
+  onDestroy() {
+    this.stop()
+    this.releaseScreen()
+  },
+  keepScreenAlive() {
+    // 等价于6月版的 WakeLock + 最大亮度 + SCREEN_OFF_TIMEOUT
+    try {
+      const b = brightness.getValue()
+      if (typeof b === 'number') this._savedBrightness = b
+      brightness.setMode(0)
+      brightness.setValue(1)
+      brightness.setKeepScreenOn(true)
+      brightness.wakeScreenOn({ screenOn: true })   // 不带 timeout = 不限时长,杜绝首次 60s 熄屏
+    } catch (e) {
+      console.warn('LibraryQR keepScreenAlive: ' + e)
+    }
+  },
+  releaseScreen() {
+    try {
+      brightness.setKeepScreenOn(false)
+      if (typeof this._savedBrightness === 'number') brightness.setValue(this._savedBrightness)
+    } catch (e) {}
+  },
+  start() {
+    this.stop()
+    this._mode = 'offline'
+    this._failCount = 0
+    this._ticks = 0
+    this.regen()
+    console.info('LibraryQR v1.2.1 onShow, offline sample: ' + this.qr)
+    this.fetchCode()
+    this.timer = setInterval(() => this.tick(), config.refreshMs)
+  },
+  stop() {
+    if (this.timer) {
+      clearInterval(this.timer)
+      this.timer = null
+    }
+    if (this.wakeTimer) {
+      clearInterval(this.wakeTimer)
+      this.wakeTimer = null
+    }
+  },
+  tick() {
+    this._ticks++
+    if (this._mode === 'online') {
+      this.fetchCode()
+    } else {
+      this.regen()
+      if (this._ticks % 10 === 0) this.fetchCode()
+    }
+  },
+  refreshNow() {
+    // 长按松手后会补发 click,用标记抑制,避免切模式时误刷新
+    if (this._lp) {
+      this._lp = false
+      return
+    }
+    if (this._mode === 'online') this.fetchCode()
+    else this.regen()
+  },
+  toggleInverted() {
+    this._lp = true
+    this.inverted = !this.inverted
+    this.applyMode()
+    try { storage.set('inverted', this.inverted) } catch (e) {}
+    console.info('LibraryQR inverted=' + this.inverted + ' (saved)')
+  },
+  pad2(n) {
+    return n < 10 ? '0' + n : '' + n
+  },
+  clockText(now) {
+    return this.pad2(now.getHours()) + ':' + this.pad2(now.getMinutes()) + ':' + this.pad2(now.getSeconds())
+  },
+  regen() {
+    const now = new Date(Date.now() + this.offsetMs)
+    const dd = this.pad2(now.getDate())
+    const hms = this.pad2(now.getHours()) + this.pad2(now.getMinutes()) + this.pad2(now.getSeconds())
+    const tail = (now.getSeconds() % config.tailCycle) + 1
+    this.qr = config.prefix + dd + hms + config.suffix + tail
+    this.status = this.modeText() + ' ' + this.clockText(now)
+  },
+  modeText() {
+    if (this._mode === 'online') return '在线'
+    return this.offsetMs !== 0 ? '离线·已校准' : '离线'
+  },
+  async fetchCode() {
+    if (this._busy) return
+    this._busy = true
+    try {
+      const token = await this.ensureToken()
+      const r = await fetch.fetch({
+        url: config.qrUrl + '?_t=' + Date.now(),
+        method: 'GET',
+        header: { Authorization: 'Bearer ' + token },
+        responseType: 'json',
+        timeout: 8000
+      })
+      const real = r && r.data && r.data.data && r.data.data.qrcode
+      if (!real) throw new Error('bad qrcode response http=' + r.code)
+      this.calibrateFrom(real)
+      this.qr = real
+      this._mode = 'online'
+      this._failCount = 0
+      console.info('LibraryQR fetch ok: ' + real)
+      const now = new Date(Date.now() + this.offsetMs)
+      this.status = '在线 ' + this.clockText(now)
+    } catch (e) {
+      this._failCount++
+      console.warn('LibraryQR fetch fail #' + this._failCount + ': ' + e)
+      if (this._failCount >= 2 && this._mode === 'online') {
+        this._mode = 'offline'
+        console.warn('LibraryQR fall back to offline: ' + e)
+      }
+      if (this._mode === 'offline') this.regen()
+    } finally {
+      this._busy = false
+    }
+  },
+  async ensureToken() {
+    const now = Date.now()
+    let token = null
+    let exp = null
+    try {
+      token = storage.get('accessToken')
+      exp = storage.get('tokenExp')
+    } catch (e) {}
+    if (token && typeof exp === 'number' && now < exp) return token
+    const t = Math.floor(now / 1000)
+    const sign = await cipher.hash({
+      algorithm: 'md5',
+      data: config.openid + t + config.secret,
+      encode: 'hex'
+    })
+    const r1 = await fetch.fetch({
+      url: config.authUrl + '?token=' + config.libToken + '&openid=' + config.openid + '&time=' + t + '&sign=' + sign,
+      method: 'GET',
+      responseType: 'json',
+      timeout: 8000
+    })
+    console.info('LibraryQR auth http=' + r1.code)
+    const d = r1 && r1.data && r1.data.data
+    if (!d || !d.access_token) throw new Error('no access_token')
+    const expiresIn = (typeof d.expires_in === 'number' ? d.expires_in : 43200) - 300
+    try {
+      storage.set('accessToken', d.access_token)
+      storage.set('tokenExp', now + expiresIn * 1000)
+    } catch (e) {}
+    return d.access_token
+  },
+  calibrateFrom(real) {
+    if (real.substr(0, 3) !== config.prefix) {
+      this.hint = '注意:服务器码文前缀 ' + real.substr(0, 5) + ' 与 JYB 不符'
+      console.warn('LibraryQR prefix mismatch: ' + real)
+      return
+    }
+    const dd = parseInt(real.substr(3, 2), 10)
+    const hh = parseInt(real.substr(5, 2), 10)
+    const mm = parseInt(real.substr(7, 2), 10)
+    const ss = parseInt(real.substr(9, 2), 10)
+    const serverSec = ((dd - 1) * 86400) + hh * 3600 + mm * 60 + ss
+    const now = new Date(Date.now() + this.offsetMs)
+    const localSec = ((now.getDate() - 1) * 86400) + now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds()
+    let diff = serverSec - localSec
+    if (diff > 43200) diff -= 86400
+    if (diff < -43200) diff += 86400
+    if (Math.abs(diff) <= 120 && diff !== this.offsetMs / 1000) {
+      this.offsetMs = diff * 1000
+      try { storage.set('clockOffsetMs', this.offsetMs) } catch (e) {}
+      console.info('LibraryQR calibrated, offset=' + diff + 's, serverCode=' + real)
+    }
+  }
+}
+</script>
