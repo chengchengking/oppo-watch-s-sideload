@@ -36,6 +36,13 @@
 | 官方文档 | `G:\oppo\work\glyphix_os\web-docs\src\`（api/ components/ framework/ tutorials/） |
 | Python | 可用（PIL 已装，生成图标用） |
 
+**设备配置安装（首次必做）**：本仓库 `devices/oppo-rtos-watch.yml` 需复制到 gx 的数据目录：
+```bash
+gx list path        # 查看 data= 行，即 <data-dir>
+cp devices/oppo-rtos-watch.yml <data-dir>/devices/
+gx list device      # 出现 oppo-rtos-watch 即成功
+```
+
 ⚠️ Git Bash 会把 `/sdcard/...` 转成本地路径：**所有 adb 文件操作前 `export MSYS_NO_PATHCONV=1`**。
 
 ### 2.2 手机（adb 设备 <adb-serial>，PJD110）
@@ -157,11 +164,11 @@ adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:
 > 验证记录：R21b（com.rtos.qrwatch，用户目视确认桌面图标变二维码图案）+ R21c（双图标同批次注册，wire 完成）
 
 **前提**
-- 探针 `ftprobe18`（R21c+ 构建）已装手机；手表已回连（在线）
+- 探针 `tools/ftprobe`（R21c+ 构建）已装手机；手表已回连（在线）
 - 手机**亮屏 + 解锁**状态（Android 14 会在锁屏/不可见时强杀探针 Activity：`did not call finish`）
 
 **步骤**
-1. 图标 PNG 放入 `ftprobe18/assets/`，工作名 = `icon_<目标包名>`（无扩展名；192×192 843B 实测可用）
+1. 图标 PNG 放入 `tools/ftprobe/assets/`，工作名 = `icon_<目标包名>`（无扩展名；192×192 843B 实测可用）
 2. `src/com/rtos/ftprobe/MainService.java` → `fireOp4AndUnlock()` 末尾的 `icons[][]` 数组加入
    `{资产名, "icon_<目标包名>"}` 对
 3. `python build_probe.py` → `adb install -r build/FtProbe18.apk`
@@ -239,7 +246,7 @@ icon 必填 / 商店通道装不上自研包 / 桌面齿轮图标 / 表端深睡
 | work/findings_R18_final.md | 完整安装链 1:1 复刻 + MsgBody 字段号权威表 |
 | work/findings_R19_sideload_success.md | 5005 根因 + 调试通道成功全过程 |
 | work/findings_R20_launcher.md | 自建启动器 + 升级覆盖商店应用 |
-| ftprobe18/（versionCode 18） | 协议探针：cid=10 + Op4 文件推送 + cid=3 列表，一键复跑 |
+| tools/ftprobe/（versionCode 18） | 协议探针：cid=10 + Op4 文件推送 + cid=3 列表，一键复跑 |
 | work/auto_verify.sh | 无人值守验证循环（已停，留作参考） |
 
 何时需要：要在**无手机 UI 交互**的前提下静默安装/群发应用、或研究商店下载协议。日常开发**不需要**。
