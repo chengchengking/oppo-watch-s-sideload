@@ -1,0 +1,11 @@
+{
+  "metadata": {
+    "manifestVersion": 1,
+    "productID": 0,
+    "vendorID": 0
+  },
+  "package": "com.rtos.qrwatch",
+  "type": "app",
+  "versionCode": 2,
+  "versionName": "1.0.0"
+}

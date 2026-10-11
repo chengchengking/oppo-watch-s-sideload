@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.rtos.ftprobe">
+
+    <uses-permission android:name="com.heytap.accessory.permission.ACCESSORY_FRAMEWORK"/>
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-sdk android:minSdkVersion="29" android:targetSdkVersion="30"/>
+
+    <queries>
+        <package android:name="com.heytap.health"/>
+        <package android:name="com.heytap.accessory"/>
+    </queries>
+
+    <application android:label="FTP16" android:allowBackup="false">
+        <meta-data android:name="AccessoryServicesLocation" android:value="/res/xml/accessoryservices.xml"/>
+        <meta-data android:name="EndpointInfoConfigLocation" android:value="/res/xml/endpointinfo.xml"/>
+        <meta-data android:name="ConfigUseSystemOAF" android:value="true"/>
+        <meta-data android:name="com.oplus.ocs.oaf.AUTH_CODE" android:value="ATBGAiEAvSc4PXcdjCRLP2quTWTJqJJqSEKu9voclgkudqyoBv4CIQC/oRfGoV43M9qQeQo2ogKa11oPL5cQ46mXtnjTujo8VnNzI1j4AAAA;ATBEAiBZ41JWSIGJVqlLZpfw1J5Re/6KUrdI7PHohsqiJVmJgQIgDvGGCmzyrxIUJaeu3ZzzpG35giFClxWv9B5iLv6NADtzbhAH+AAAAA=="/>
+
+        <!-- ★★ 我们自己的 FileProvider：AF 进程无存储权限读不了 /sdcard/Download/，
+             改由我们把 fd 交给它（配 grantUriPermission）。
+             exported=true 才能被 com.heytap.accessory 访问；同时保留 grantUriPermissions。 -->
+        <provider
+            android:name=".PkgProvider"
+            android:authorities="com.rtos.ftprobe.pkg"
+            android:exported="true"
+            android:grantUriPermissions="true"/>
+
+        <!-- ★ 前台 Service：不受窗口 focus 影响，不会被 ColorOS 判 ANR 杀掉
+             （Activity 版会被 ANR：Input dispatching timed out，日志停在中途） -->
+        <service android:name=".MainService" android:exported="false"
+                 android:foregroundServiceType="dataSync"/>
+
+        <!-- 仅用于拉起 MainService 的壳，自己立刻 finish -->
+        <activity android:name=".MainActivity" android:exported="true"
+                  android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

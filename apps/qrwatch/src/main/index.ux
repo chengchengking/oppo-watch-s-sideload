@@ -1,0 +1,73 @@
+<template>
+  <div class="page" on:click="next">
+    <qrcode class="code" :value="items[index].value"/>
+    <p class="tip">{{items[index].label}} {{index + 1}}/{{items.length}}</p>
+    <p class="hint">10秒自动切换 · 点击手动</p>
+  </div>
+</template>
+
+<style>
+  .page {
+    width: 466px;
+    height: 466px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #ffffff;
+  }
+
+  .code {
+    width: 320px;
+    height: 320px;
+    padding: 20px;
+    color: #000000;
+    background-color: #ffffff;
+    border-radius: 24px;
+  }
+
+  .tip {
+    margin-top: 16px;
+    font-size: 26px;
+    color: #222222;
+    text-align: center;
+  }
+
+  .hint {
+    margin-top: 6px;
+    font-size: 20px;
+    color: #999999;
+    text-align: center;
+  }
+</style>
+
+<script>
+  import items from './qr-data.js'
+
+  export default {
+    data: {
+      items: items,
+      index: 0,
+      timer: null
+    },
+    onShow() {
+      this.startTimer()
+    },
+    onHide() {
+      this.stopTimer()
+    },
+    startTimer() {
+      this.stopTimer()
+      this.timer = setInterval(() => this.next(), 10000)
+    },
+    stopTimer() {
+      if (this.timer) {
+        clearInterval(this.timer)
+        this.timer = null
+      }
+    },
+    next() {
+      this.index = (this.index + 1) % this.items.length
+    }
+  }
+</script>

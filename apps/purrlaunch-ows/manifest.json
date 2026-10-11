@@ -1,0 +1,60 @@
+{
+  "package": "com.xfaith.woodenfish",
+  "name": "PurrLaunch",
+  "versionName": "1.2.1",
+  "versionCode": 9,
+  "permissions": [
+    {
+      "name": "watch.permission.FOREGROUND_SERVICE"
+    },
+    {
+      "name": "watch.permission.ACCESS_SENSORS"
+    },
+    {
+      "name": "watch.permission.DEVICE_INFO"
+    },
+    {
+      "name": "watch.permission.RECORD"
+    },
+    {
+      "name": "watch.permission.BLUETOOTH"
+    },
+    {
+      "name": "watch.permission.READ_HEALTH_DATA"
+    },
+    {
+      "name": "watch.permission.SCHEDULE"
+    },
+    {
+      "name": "watch.permission.NOTIFICATION"
+    },
+    {
+      "name": "watch.permission.LOCATION"
+    }
+  ],
+  "features": [],
+  "router": {
+    "entry": "pages/main",
+    "pages": {
+      "pages/main": {
+        "component": "index"
+      },
+      "pages/menu": {
+        "component": "index"
+      },
+      "pages/sysinfo": {
+        "component": "index"
+      },
+      "pages/filemanager": {
+        "component": "index"
+      },
+      "pages/uninstall": {
+        "component": "index"
+      },
+      "pages/textviewer": {
+        "component": "index"
+      }
+    }
+  },
+  "icon": "/assets/icon.png"
+}

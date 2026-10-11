@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ftprobe17 —— ★ urn 必须带 ":<version>" 后缀（否则 profileId 解析错）
+
+  依据 work/afsrc/sources/g3/a.java:46-52（ServiceProfileBuilder，权威）：
+      String urn = xml.getAttributeValue(null, "urn");
+      String id      = urn.substring(0, urn.lastIndexOf(":"));   // profileId
+      String version = urn.substring(urn.lastIndexOf(":") + 1);
+  → urn="wear:watchappservice_file"     ⇒ profileId="wear"  ← 错
+  → urn="wear:watchappservice_file:1.0" ⇒ profileId="wear:watchappservice_file" ← 对
+
+  ★ 本窗口新增第二个 consumer `wear:watchappservice`：
+    真机安装的 cid=10 控制报文走 sid=267 / `wear:watchappservice`（WatchAppServiceAgent），
+    与文件面的 `wear:watchappservice_file`（sid=272）是**两条不同的服务**。
+    FrameworkManagerServiceNative.sendMessage 的第 2 参是【本地 agentId】，
+    服务端会做 temp.base.a.a(3, localAgentId, remoteAgentId, accId) 的 dormant 检查；
+    本地 agent 必须在框架里注册过（否则解析成 -1 → 10018 CONNECTION_FAILURE_ACC_DORMANT）。
+    所以必须为控制面也声明 profile，才能拿到它的本地 agentId。
+-->
+<profiles>
+    <consumer
+        awakenable="enable"
+        connectionType="BT|BLE"
+        impl="com.rtos.ftprobe.FtAgent"
+        limit="ANY"
+        name="watchappfile"
+        timeout="10"
+        urn="wear:watchappservice_file:1.0">
+        <channel id="1" priority="low" reliability="disable"/>
+    </consumer>
+    <consumer
+        awakenable="enable"
+        connectionType="BT|BLE"
+        impl="com.rtos.ftprobe.SvcAgent"
+        limit="ANY"
+        name="watchappsvc"
+        timeout="10"
+        urn="wear:watchappservice:1.0">
+        <channel id="1" priority="low" reliability="disable"/>
+    </consumer>
+</profiles>
