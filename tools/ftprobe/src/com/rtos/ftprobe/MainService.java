@@ -198,7 +198,10 @@ public class MainService extends Service {
             File[] med = getExternalMediaDirs();
             File md = new File(med[0], "com.rtos.pkg");
             if (md.getParentFile() != null) md.getParentFile().mkdirs();
-            if (!md.exists() || md.length() != 3488) {   // v2 bundle（含 icon）长度；R20b
+            // ★ 始终从 assets 重新落盘（与 asset 逐字节对齐，换包后无需改代码——
+            //   旧实现比对写死的长度，换自己的包时会推错内容）
+            long assetLen = getAssets().openFd("com.rtos.pkg").getLength();
+            if (!md.exists() || md.length() != assetLen) {
                 java.io.InputStream in = getAssets().open("com.rtos.pkg");
                 java.io.FileOutputStream out = new java.io.FileOutputStream(md);
                 byte[] buf = new byte[8192]; int n;
