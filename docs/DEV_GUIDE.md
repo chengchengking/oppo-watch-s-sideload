@@ -1,6 +1,6 @@
 # Glyphix 应用开发与侧载完全指南
 ### 目标平台：OPPO Watch S（OWW262）· Glyphix OS · 466×466 圆屏
-> 2026-10-11 · 基于第 10~20 窗口的实测结论 · 配套：HANDOFF.md（快速交接）、work/findings_*.md（协议逆向档案）
+> 2026-10-11 · 基于第 10~20 窗口的实测结论 · 配套：`docs/findings/`（协议逆向档案）、`docs/SOURCES.md`（外部资源出处与署名）
 > 所有标注 ✅ 的结论都在真机验证过；⚠️ 是踩过的坑。
 
 ---
@@ -18,7 +18,7 @@
                                 └──────────────┘
 ```
 
-- **Glyphix OS**：OPPO 的轻量 JS 应用系统（快应用风格：UX 模板 + @system.* API）。开源文档在 github.com/glyphix-os/web-docs（已克隆到 `work/glyphix_os/web-docs/`，**写代码前先查它**）。
+- **Glyphix OS**：OPPO 的轻量 JS 应用系统（快应用风格：UX 模板 + @system.* API）。开源文档在 github.com/glyphix-os/web-docs（**写代码前先查它**；建议 clone 一份到本地）。
 - **安装通道有两条**：
   - **调试通道**（瑰元助手「安装应用」）→ ✅ 本指南的标准路线。不校验签名、不做包内容强校验（仅要求 manifest 合法 + 必填字段齐全）。
   - **商店通道**（健康 App / PTC 协议直推）→ R10~R18 窗口已把传输层逆向打通（文件 MD5 级送达 8+ 次），但表端对自研包的安装校验始终不放行（cid=5 是"暂存"而非 InstallDone）。**没有瑰元助手时才考虑，档案见第 8 节。**
@@ -30,11 +30,11 @@
 ### 2.1 PC
 | 项 | 位置/值 |
 |---|---|
-| gx 工具链 v0.11.0 | `G:\oppo\.toolchain\node_modules\@glyphix\cli-win32-x64\bin\gx.exe` |
-| 设备配置 | `C:/Users/<user>\AppData\Roaming\glyphix\devices\oppo-rtos-watch.yml`（vendorID/productID 已定 0x0000/0x0000，勿再改回探针值 0x1234/0x5678） |
-| 包格式工具 | `G:\oppo\pkg_tools\pkg_tool.py`（info/list/manifest/extract/pack/setdevice；CR 容器格式见 PKG_FORMAT.md） |
-| 官方文档 | `G:\oppo\work\glyphix_os\web-docs\src\`（api/ components/ framework/ tutorials/） |
-| Python | 可用（PIL 已装，生成图标用） |
+| gx 工具链 | `npm i -g glyphix-cli`（npm 最新 0.8.0-rc，装出来的 `gx` 版本是 **v0.11.0**）；实际位置用 `where gx` 查 |
+| 设备配置 | `%APPDATA%\glyphix\devices\oppo-rtos-watch.yml`——把本仓库 `devices/oppo-rtos-watch.yml` 复制过去即可（vendorID/productID 已定 0x0000/0x0000，勿改回探针值 0x1234/0x5678） |
+| 包格式工具 | 本仓库 `tools/pkg_tool.py`（info/list/manifest/extract/pack/setdevice；CR 容器格式见 PKG_FORMAT.md） |
+| 官方文档 | 线上 github.com/glyphix-os/web-docs（可 clone 到任意目录；api/ components/ framework/ tutorials/） |
+| Python | 3.x + Pillow（生成图标用） |
 
 **设备配置安装（首次必做）**：本仓库 `devices/oppo-rtos-watch.yml` 需复制到 gx 的数据目录：
 ```bash
@@ -71,7 +71,7 @@ gx list device      # 出现 oppo-rtos-watch 即成功
 │     ├─ index.ux          # 页面 = <template> + <style> + <script>
 │     └─ <data>.js         # 页面用数据模块（ES import）
 ```
-参考工程：`G:\oppo\com.rtos.qrwatch\`（二维码应用）与 `G:\oppo\purrlaunch-lite\`（启动器）。
+参考工程：`apps/qrwatch/src/`（二维码应用，最小可用工程）与 `apps/purrlaunch-ows/`（PurrLaunch 的 OWS 适配 delta）。
 
 ### 3.2 manifest.json 全字段（★=必填）
 ```json
@@ -223,13 +223,17 @@ adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:
 | 10002 | R17 协议链 | urn 未带版本号 → profileId 解析错 |
 | 10110 | R17 协议链 | sendMessage 帧缓冲不足（协议链特有） |
 
-### 6.4 十坑速查（详见 HANDOFF.md 第 3 节）
+### 6.4 十坑速查
 icon 必填 / 商店通道装不上自研包 / 桌面齿轮图标 / 表端深睡断连 / ColorOS 冻结探针 / 模拟器缺 launcher / CDN 要签名 / UI 自动化弹窗插队+屏幕旋转 / MSYS_NO_PATHCONV / logcat 缓冲小。
+
+前四项的处理办法分别见 §3.2（icon）、§1（通道）、§5（图标）、§2.3（深睡断连）；其余是逆向期的环境坑，日常开发遇不到。
 
 ---
 
-## 7. 启动器 purrlaunch-lite（已在表上运行）
-- 位置：`G:\oppo\purrlaunch-lite\`；包名 `com.xfaith.woodenfish`（占位原木鱼），versionCode 8
+## 7. 启动器：PurrLaunch 的 OWS 适配版（已在表上运行）
+- 本仓库位置：`apps/purrlaunch-ows/`（上游 purrrock/PurrLaunch v1.2.2 的最小适配 delta，MIT，详见该目录 OWS-ADAPTATION.md）
+- 包名 `com.xfaith.woodenfish`（占位原木鱼）
+- 说明：早期另有一个自建的 purrlaunch-lite（versionCode 8），后来被官方 PurrLaunch 覆盖，**未随仓库发布**
 - 功能：`pkg.list('app')` 动态列表（系统包排后、隐藏自己）→ 点击 `launch()` 启动
 - 已验证：升级覆盖商店版木鱼 ✅；页面生命周期/渲染全通 ✅；新装的应用自动出现在列表
 - 改回木鱼：手表应用商店重装（会反过来覆盖启动器）；改启动器：改 src 后按第 4 节重装
@@ -239,41 +243,57 @@ icon 必填 / 商店通道装不上自研包 / 桌面齿轮图标 / 表端深睡
 ## 8. 深水区档案索引（商店协议逆向——仅"绕过瑰元助手"时需要）
 | 文件 | 内容 |
 |---|---|
-| work/findings_R14_transfer_success.md | 文件端到端送达 + 五个必须同时做对的修复 |
-| work/findings_R15_cid10_protocol.md | cid=10 安装预检 protobuf 协议还原 |
-| work/findings_R16_cid10_live.md | cid=10 实弹 |
-| work/findings_R17_wireformat.md | MEX 帧契约（15B 头、offset=15、主路径唯一活路） |
-| work/findings_R18_final.md | 完整安装链 1:1 复刻 + MsgBody 字段号权威表 |
-| work/findings_R19_sideload_success.md | 5005 根因 + 调试通道成功全过程 |
-| work/findings_R20_launcher.md | 自建启动器 + 升级覆盖商店应用 |
+| docs/findings/findings_R14_transfer_success.md | 文件端到端送达 + 五个必须同时做对的修复 |
+| docs/findings/findings_R15_cid10_protocol.md | cid=10 安装预检 protobuf 协议还原 |
+| docs/findings/findings_R16_cid10_live.md | cid=10 实弹 |
+| docs/findings/findings_R17_wireformat.md | MEX 帧契约（15B 头、offset=15、主路径唯一活路） |
+| docs/findings/findings_R18_final.md | 完整安装链 1:1 复刻 + MsgBody 字段号权威表 |
+| docs/findings/findings_R19_sideload_success.md | 5005 根因 + 调试通道成功全过程 |
+| docs/findings/findings_R20_launcher.md | 自建启动器 + 升级覆盖商店应用 |
 | tools/ftprobe/（versionCode 18） | 协议探针：cid=10 + Op4 文件推送 + cid=3 列表，一键复跑 |
-| work/auto_verify.sh | 无人值守验证循环（已停，留作参考） |
+| （未随仓库发布）auto_verify.sh | 无人值守验证循环（已停，留作参考） |
 
 何时需要：要在**无手机 UI 交互**的前提下静默安装/群发应用、或研究商店下载协议。日常开发**不需要**。
 
 ---
 
-## 9. 文件地图（G:\oppo）
-```
-HANDOFF.md                ← 快速交接（10 坑清单+黄金路线）
-DEV_GUIDE.md              ← 本文档
-com.rtos.qrwatch/         ← 二维码应用（v2 已装：10 秒自动轮播）
-purrlaunch-lite/          ← 启动器（已装：占位 com.xfaith.woodenfish）
-com.rtos.pkg              ← 旧版商店格式包（历史产物，勿再用于安装——缺 icon 会 5005）
-.toolchain/               ← gx v0.11.0
-pkg_tools/                ← pkg_tool.py + PKG_FORMAT.md
-work/
-  ├─ glyphix_os/web-docs/ ← 官方文档克隆（api/ components/ framework/ tutorials/）
-  ├─ findings_R1x*.md     ← 各窗口战报（R14~R20）
-  ├─ glyphix_assistant/   ← 瑰元助手 APK + dex 字符串
-  ├─ oafsrc/ routesrc/    ← 健康 App 反编译片段（hermes 产物）
-  ├─ store_catalog.json   ← 手表商店 127 应用元数据
-  └─ ftprobe*.*           ← 协议探针工程与日志
-```
+## 9. 目录对照：仓库 ↔ 原始工作目录
+
+本仓库是原始工作目录的**公开子集**：可复现的工具、源码、文档都在仓库里；
+涉及厂商反编译产物的部分只保留结论、不发布原始文件（见文末免责声明）。
+
+| 仓库路径 | 内容 | 原始工作目录对应项 |
+|---|---|---|
+| `README.md` | 六步上手 | — |
+| `docs/DEV_GUIDE.md` | 本文档 | `DEV_GUIDE.md` |
+| `docs/PKG_FORMAT.md` | CR 容器格式规格 | `pkg_tools/PKG_FORMAT.md` |
+| `docs/findings/findings_R14~R21*.md` | 各窗口战报（商店协议逆向） | `work/findings_R1x*.md` |
+| `docs/findings/findings_master.md` | 全量汇总 | `work/` 汇总 |
+| `docs/SOURCES.md` | 外部资源出处 / 署名 / 核实日期 | 新增 |
+| `apps/qrwatch/` | 二维码应用（v2：10 秒自动轮播） | `com.rtos.qrwatch/` |
+| `apps/library-qr/` | 图书馆读者证动态码（生态示例） | — |
+| `apps/purrlaunch-ows/` | PurrLaunch 的 OWS 适配 delta | `PurrLaunch/` |
+| `tools/guiyuan-assistant/` | 瑰元助手 APK 镜像 + 说明 | `work/glyphix_assistant/` |
+| `tools/ftprobe/` | 协议探针（含桌面图标注册） | `work/ftprobe*/` |
+| `tools/pkg_tool.py` | 包格式读写 | `pkg_tools/pkg_tool.py` |
+| `devices/oppo-rtos-watch.yml` | gx 设备配置 | `%APPDATA%\glyphix\devices\` |
+
+**只在本地、未随仓库发布**：`HANDOFF.md`（交接便签）、`purrlaunch-lite/`（已被官方 PurrLaunch 取代）、
+`com.rtos.pkg`（旧版商店格式包，缺 icon 会 5005，勿再用于安装）、`.toolchain/`（gx 安装目录）、
+`work/oafsrc/` 与 `work/routesrc/`（健康 App 反编译片段）、`work/store_catalog.json`（商店元数据）、`work/auto_verify.sh`。
+反编译产物按免责声明不发布，只保留 `docs/findings/` 里的行为结论。
+
+> `docs/findings/` 下的战报是当时的原始工作日志，正文里出现的 `G:/oppo/...`、`work/...` 都是**当时的本地路径**，
+> 对应关系见上表；为保留原始记录不做回改，读的时候按表换算即可。
 
 ## 10. 参考链接
-- 官方文档（本地）：work/glyphix_os/web-docs/src/；线上 github.com/glyphix-os
-- 米坛教程：bandbbs.cn/threads/29508/（作者 libiao0418，**仅为教程作者**；附件 10856.webp = Purrlaunch rpk，需论坛互动后下载）
-- 瑰元助手原始发布页：pgyer.com/glyphix-assistant（蒲公英分发，包名 com.glyphix.assistant；页面未标注作者，勿代填人名）
-- Purrlaunch：上游 github.com/purrrock/PurrLaunch（MIT），与上述教程作者无署名关系
-- 注：GitHub 上不存在瑰元助手的仓库或源码（2026-10-21 检索「瑰元助手」「com.glyphix.assistant」「glyphix assistant」均无结果）
+
+- **Glyphix 官方文档**：[github.com/glyphix-os/web-docs](https://github.com/glyphix-os/web-docs)（写代码前先查它；本地 clone 到任意目录即可）
+- **米坛教程**：[bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/)——作者 libiao0418，**仅为教程作者**。
+  帖内 2026-10-10 补充了教程所用工具的网盘（密码见原帖），需要 Purrlaunch rpk 等附件时按原帖提示取。
+- **瑰元助手原始发布页**：[pgyer.com/glyphix-assistant](https://www.pgyer.com/glyphix-assistant)——蒲公英分发，包名 `com.glyphix.assistant`；
+  页面**未标注作者**，勿代填人名（核对记录见 `docs/SOURCES.md`）。
+- **PurrLaunch**：上游 [github.com/purrrock/PurrLaunch](https://github.com/purrrock/PurrLaunch)（MIT，v1.2.2），与上述教程作者无署名关系。
+- **glyphix-cli**：npm 包，当前 latest = 0.8.0-rc，装出的 `gx` 为 v0.11.0。
+
+> 外部资源的完整出处、核实日期与「哪些字段可核对 / 哪些查不到」都记在 `docs/SOURCES.md`。
