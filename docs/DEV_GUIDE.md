@@ -274,5 +274,6 @@ work/
 ## 10. 参考链接
 - 官方文档（本地）：work/glyphix_os/web-docs/src/；线上 github.com/glyphix-os
 - 米坛教程：bandbbs.cn/threads/29508/（作者 libiao0418，**仅为教程作者**；附件 10856.webp = Purrlaunch rpk，需论坛互动后下载）
-- 瑰元助手：署名与发布渠道本仓库未核实，**以 APK 原始发布页 / 维护者为准**，勿据本仓库转述引用
+- 瑰元助手原始发布页：pgyer.com/glyphix-assistant（蒲公英分发，包名 com.glyphix.assistant；页面未标注作者，勿代填人名）
 - Purrlaunch：上游 github.com/purrrock/PurrLaunch（MIT），与上述教程作者无署名关系
+- 注：GitHub 上不存在瑰元助手的仓库或源码（2026-10-21 检索「瑰元助手」「com.glyphix.assistant」「glyphix assistant」均无结果）
