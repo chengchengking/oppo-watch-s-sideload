@@ -3,8 +3,11 @@
 手机端侧载安装器——**本仓库标准流程的核心工具**。它通过 OPPO 健康（com.heytap.health）
 与手表桥接，提供「安装应用 / 启动应用 / 检查安装 / 设备日志」等调试通道能力。
 
-- **作者**：libiao0418（B 站：苏州优质男青年）
-- **原始发布**：[米坛社区 bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/)（需论坛账号）
+- **署名**：以 APK 原始发布页 / 该工具维护者为准。本仓库**不掌握确切署名**，故此处不代填作者名。
+- **来源**：本镜像取自米坛社区教程帖 [bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/) 的附件（需论坛账号）。
+  该帖作者 libiao0418 是**教程作者**，并非瑰元助手作者，仅为该工具的用户。
+- **谱系**：桥接调试能力源自早期社区工具 `glyphixdebug`（原开发者不详，现由他人维护），
+  瑰元助手是其维护者出于便于维护的目的从原项目中拆分出的独立工具。
 - **版本**：v1.2（versionCode 3）；已存在 v1.3（"支持 OHealth"），应用内会提示更新
 - **包名**：com.glyphix.assistant · 主 Activity：`com.xfaith.interconnect.MainActivity`
 - **SHA256**：`5d7389524a494291251effb07fda67e06bbf43a89fa209b6824dd1d849661b27`
