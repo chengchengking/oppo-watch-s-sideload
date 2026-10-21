@@ -12,6 +12,9 @@
 - **谱系**：按教程原文，Glyphix OS 调试工具 `glyphixdebug` 自 2.5.0 起把「桥接模式」独立到了瑰元助手。
   APK 内使用 `com.glyphix.interconnect` 系列类（`GlyphixInterconnect` / `GlyphixDebug` / `GlyphixWear263`），
   即构建在 Glyphix 的 interconnect SDK 之上——这只说明用了什么 SDK，不构成作者归属证据。
+
+> 发布页是怎么确定的、版本对照、以及「哪些字段能核对 / 哪些查不到」，见 [`docs/SOURCES.md` §1](../../docs/SOURCES.md)。
+
 - **检索记录（2026-10-21）**：GitHub 检索「瑰元助手」「com.glyphix.assistant」「glyphix assistant」均**无相关仓库或源码**；
   该工具没有 GitHub 发布渠道，蒲公英页即其分发入口。
 - **更正记录**：2026-10-21 依 issue #1 更正——原先把**教程作者**当成了工具作者，并挂了一个查无实据的第三方账号；
