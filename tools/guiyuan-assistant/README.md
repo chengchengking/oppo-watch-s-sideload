@@ -3,14 +3,20 @@
 手机端侧载安装器——**本仓库标准流程的核心工具**。它通过 OPPO 健康（com.heytap.health）
 与手表桥接，提供「安装应用 / 启动应用 / 检查安装 / 设备日志」等调试通道能力。
 
-- **署名**：以 APK 原始发布页 / 该工具维护者为准。本仓库**不掌握确切署名**，故此处不代填作者名。
-- **来源**：本镜像取自米坛社区教程帖 [bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/) 的附件（需论坛账号）。
-  该帖作者 libiao0418 是**教程作者**，并非瑰元助手作者，仅为该工具的用户。
-- **谱系**：按教程原文，Glyphix OS 调试工具 `glyphixdebug` 自 2.5.0 起把「桥接模式」独立到了瑰元助手；
-  该工具的开发者/维护者本仓库未核实，故不代填。
-- **更正记录**：2026-10-21 依 issue #1 更正——原先把**教程作者**当成了工具作者，
-  并把一个未经核实的第三方账号挂在其名下；相关表述已全部删除，本仓库不再转述任何未经核实的署名。
-- **版本**：v1.2（versionCode 3）；已存在 v1.3（"支持 OHealth"），应用内会提示更新
+- **原始发布页**：[pgyer.com/glyphix-assistant](https://www.pgyer.com/glyphix-assistant) —— 蒲公英应用分发页，包名 `com.glyphix.assistant`。
+- **署名**：上述发布页**未标注作者 / 开发者**，本仓库同样无从核实，故不代填任何人名。版权归该工具作者所有，以发布页为准。
+- **上游版本**：发布页当前为 **v1.3（build 3，2026-10-08）**，更新说明「支持 OHealth」；本仓库镜像是 **v1.2（build 2，2026-08-21）**。
+  应用内「发现新版本 1.3」弹窗走的就是蒲公英更新检查接口（APK 内含 `pgyer.com/apiv2/app/check` 调用）。
+- **镜像来源**：米坛社区教程帖 [bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/) 的附件（需论坛账号）。
+  该帖作者 libiao0418 是**教程作者**，不是本工具作者，仅为该工具用户。
+- **谱系**：按教程原文，Glyphix OS 调试工具 `glyphixdebug` 自 2.5.0 起把「桥接模式」独立到了瑰元助手。
+  APK 内使用 `com.glyphix.interconnect` 系列类（`GlyphixInterconnect` / `GlyphixDebug` / `GlyphixWear263`），
+  即构建在 Glyphix 的 interconnect SDK 之上——这只说明用了什么 SDK，不构成作者归属证据。
+- **检索记录（2026-10-21）**：GitHub 检索「瑰元助手」「com.glyphix.assistant」「glyphix assistant」均**无相关仓库或源码**；
+  该工具没有 GitHub 发布渠道，蒲公英页即其分发入口。
+- **更正记录**：2026-10-21 依 issue #1 更正——原先把**教程作者**当成了工具作者，并挂了一个查无实据的第三方账号；
+  相关表述已全部删除。现只保留可在发布页当场核对的字段（包名、版本、更新时间）。
+- **版本**：镜像 v1.2（本仓库实测 versionCode 3；蒲公英侧 build 2）；上游已到 v1.3（build 3）
 - **包名**：com.glyphix.assistant · 主 Activity：`com.xfaith.interconnect.MainActivity`
 - **SHA256**：`5d7389524a494291251effb07fda67e06bbf43a89fa209b6824dd1d849661b27`
 - **版权**：归其作者所有。本镜像仅为复现研究流程而分发，如作者要求移除请联系仓库维护者。
