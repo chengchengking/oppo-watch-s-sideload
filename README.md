@@ -26,7 +26,7 @@ gx list device                  # 出现 oppo-rtos-watch 等设备名即成功
 > 任选一个 `generic-watch-466x466` 亦可，或参照 docs/DEV_GUIDE.md §2.1 自建 yml。
 
 ### 第 1 步：手机装瑰元助手
-安装 `tools/guiyuan-assistant/glyphix-assistant-v1.2.apk`（详见该目录 README：作者/来源/校验和）。
+安装 `tools/guiyuan-assistant/glyphix-assistant-v1.2.apk`（详见该目录 README：来源/校验和）。
 打开它 → 点「连接」→ 日志出现 `连接服务: com.heytap.health → 连接成功`；
 点「设备信息」返回 OWW262 身份即桥接就绪。
 
@@ -83,7 +83,7 @@ OWS 桌面菜单是**硬编码**的，不动态扫描应用。解法：安装
 docs/                 DEV_GUIDE.md（★ 完整开发指南）、PKG_FORMAT.md（CR 包格式规格）、findings/（逆向档案）
 apps/qrwatch/         二维码应用源码 + 预构建 bundle.pkg（改 src/main/qr-data.js 换码内容）
 apps/purrlaunch-ows/  PurrLaunch v1.2.2 的 OWS 适配 delta（上游: purrrock/PurrLaunch, MIT）
-tools/guiyuan-assistant/  瑰元助手 v1.2 APK（镜像分发，作者 libiao0418）+ 使用说明
+tools/guiyuan-assistant/  瑰元助手 v1.2 APK（镜像分发，署名以原始发布页为准）+ 使用说明
 tools/ftprobe/        watchappservice_file 协议探针（含桌面图标注册 fireIconPush）
 tools/pkg_tool.py     Glyphix CR 容器格式读写工具
 ```
@@ -108,7 +108,8 @@ tools/pkg_tool.py     Glyphix CR 容器格式读写工具
 ## 致谢与参考
 
 - [purrrock/PurrLaunch](https://github.com/purrrock/PurrLaunch)（MIT）—— 占位启动器原创，`apps/purrlaunch-ows/` 是其 OWS 适配 delta
-- [bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/) —— OWS 侧载教程（libiao0418，瑰元助手作者）
+- [bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/) —— OWS 侧载教程（教程作者 libiao0418）
+  > 该帖作者是**教程作者**，不是瑰元助手作者（仅为该工具的用户）。瑰元助手的署名请以其 APK 原始发布页 / 维护者为准。
 - [glyphix-os/web-docs](https://github.com/glyphix-os/web-docs) —— Glyphix 官方文档
 
 ## 免责声明
