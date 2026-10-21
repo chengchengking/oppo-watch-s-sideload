@@ -5,6 +5,20 @@
 
 ---
 
+## 0. 只想把应用装上表
+
+```bash
+npm install -g glyphix-cli             # 一次
+python tools/ows.py install qrwatch    # 每次：构建 + 推到手机
+```
+
+跑完在手机上点「安装应用」即可。卡住就先跑 `python tools/ows.py doctor`（逐项检查环境，缺什么给补救命令）。
+
+> **赶时间可以只看 §0 + §6（排错）**。
+> §1~§4 是原理与手动流程；**§5.3（桌面图标）与 §8（商店协议逆向）属进阶，不做也能正常用**。
+
+---
+
 ## 1. 平台架构：搞清楚谁在干什么
 
 ```
@@ -118,6 +132,7 @@ gx list device      # 出现 oppo-rtos-watch 即成功
 ---
 
 ## 4. 构建与安装 SOP（✅ 全流程可复制）
+> 脚本一行：`python tools/ows.py install <app>`（= 构建 + push + 触发媒体扫描）。下面是手动流程。
 
 ### 4.1 构建
 ```bash
@@ -160,7 +175,8 @@ adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:
 4. 包内自带 icon、manifest 声明 icon 都**不能**让桌面显示——桌面只认注册表
 5. PurrLaunch 作者（DT NO.1 G1）的桌面是"硬编码菜单+OS 烘焙图标"，与 OWS 不同构；OWS 这套是可从包侧/文件侧修复的
 
-### 5.3 ★ 标准流程 SOP：给侧载应用注册/更换桌面图标（✅ 已验证）
+### 5.3 ★ 标准流程 SOP：给侧载应用注册/更换桌面图标（✅ 已验证，**进阶项**）
+> 不做也不影响安装与运行，只是桌面会显示齿轮。要用 Android SDK 编探针，是全仓库最麻烦的一步。
 > 验证记录：R21b（com.rtos.qrwatch，用户目视确认桌面图标变二维码图案）+ R21c（双图标同批次注册，wire 完成）
 
 **前提**
