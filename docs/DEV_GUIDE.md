@@ -273,5 +273,6 @@ work/
 
 ## 10. 参考链接
 - 官方文档（本地）：work/glyphix_os/web-docs/src/；线上 github.com/glyphix-os
-- 米坛教程：bandbbs.cn/threads/29508/（附件 10856.webp = Purrlaunch rpk，需论坛互动后下载）
-- 教程作者渠道：B 站"苏州优质男青年"（libiao0418，**仅教程作者**；瑰元助手署名以 APK 原始发布页为准，Purrlaunch 上游为 purrrock/PurrLaunch）
+- 米坛教程：bandbbs.cn/threads/29508/（作者 libiao0418，**仅为教程作者**；附件 10856.webp = Purrlaunch rpk，需论坛互动后下载）
+- 瑰元助手：署名与发布渠道本仓库未核实，**以 APK 原始发布页 / 维护者为准**，勿据本仓库转述引用
+- Purrlaunch：上游 github.com/purrrock/PurrLaunch（MIT），与上述教程作者无署名关系
