@@ -17,7 +17,6 @@
 #    preparePkg 现按 asset 实际长度对齐）：
 mkdir -p assets && cp <你的应用>/bundle.pkg assets/com.rtos.pkg
 # 2) （可选）要注册桌面图标：assets/icon_<目标包名> + MainService.fireOp4AndUnlock() 末尾 icons[][] 数组
-# 2) （可选）要注册图标：assets/icon_<目标包名> + MainService.fireOp4AndUnlock() 末尾 icons[][] 数组
 python build_probe.py   # 产物 build/FtProbe18.apk
 adb install -r build/FtProbe18.apk
 ```
