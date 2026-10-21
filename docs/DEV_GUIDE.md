@@ -48,7 +48,7 @@ gx list device      # 出现 oppo-rtos-watch 即成功
 ### 2.2 手机（adb 设备 <adb-serial>，PJD110）
 | 包 | 作用 |
 |---|---|
-| com.glyphix.assistant | **瑰元助手 v1.2**：侧载安装器（v1.3 已发布未验证）。UI 六键：连接/设备信息/检查安装/安装应用/启动应用/设备日志 |
+| com.glyphix.assistant | **瑰元助手 v1.2**：侧载安装器（上游已发 v1.3，未验证；发布页见 §10）。UI 六键：连接/设备信息/检查安装/安装应用/启动应用/设备日志 |
 | com.heytap.health | OPPO 健康：桥接宿主 + 手表应用商店 |
 
 ### 2.3 手表（OWW262）
