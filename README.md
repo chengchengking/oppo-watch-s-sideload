@@ -19,11 +19,12 @@
 
 ### 第 0 步：装工具链（PC）
 ```bash
-npm install -g glyphix-cli      # gx 命令（实测 npm 0.8.0-rc 即本项目所用版本）
+npm install -g glyphix-cli      # npm 包 latest = 0.8.0-rc，装出来的 gx 是 v0.11.0（两个号不是一回事）
 gx list device                  # 出现 oppo-rtos-watch 等设备名即成功
 ```
 > 本仓库所有构建用 `-d oppo-rtos-watch`（466×466 圆屏）。没有该设备配置时，
-> 任选一个 `generic-watch-466x466` 亦可，或参照 docs/DEV_GUIDE.md §2.1 自建 yml。
+> 把本仓库 `devices/oppo-rtos-watch.yml` 复制到 `%APPDATA%\glyphix\devices\`（详见 docs/DEV_GUIDE.md §2.1），
+> 或任选一个 `generic-watch-466x466` 亦可。
 
 ### 第 1 步：手机装瑰元助手
 安装 `tools/guiyuan-assistant/glyphix-assistant-v1.2.apk`（详见该目录 README：发布页/来源/校验和）。
@@ -54,15 +55,21 @@ cd apps/qrwatch && gx build -d oppo-rtos-watch -f
 
 ### 第 4 步：侧载进手表
 ```bash
+export MSYS_NO_PATHCONV=1       # Git Bash 必加，否则 /sdcard/... 会被转成本地路径
 adb push bundle.pkg /sdcard/Download/anyname.rpk
+# 让文件管理器/助手的「下载」里能看见它（ColorOS 需要主动触发一次扫描）
+adb shell am broadcast -a android.intent.action.MEDIA_SCANNER_SCAN_FILE -d file:///sdcard/Download/anyname.rpk
 ```
 瑰元助手 →「安装应用」→ 文件 tab → 下载 → 选包 → 日志 `安装应用 成功 {"code":200}` 即装上。
-「启动应用」填包名可启动（200=成功；5001=包不存在）。
+「启动应用」填包名可启动（200=成功；5001=包不存在）。升级时直接重装，`versionCode` 必须比在装的大。
 
 ### 第 5 步：让它出现在桌面
 OWS 桌面菜单是**硬编码**的，不动态扫描应用。解法：安装
 [PurrLaunch](https://github.com/purrrock/PurrLaunch)（本仓库 `apps/purrlaunch-ows/` 是 OWS 适配版），
 它会占位手表上的"木鱼"应用作为第三方启动器——你的应用会出现在它的列表里，点击即启动。
+
+> ⚠️ PurrLaunch 与「木鱼」同包名（`com.xfaith.woodenfish`）。表上已有木鱼时，要么先卸载它，
+> 要么直接用更高的 `versionCode` 覆盖（本仓库实测走的是后者，见 docs/DEV_GUIDE.md §7）。
 
 ### 第 6 步（可选）：修正桌面图标
 侧载应用桌面默认显示齿轮（图标注册缺失）。用 `tools/ftprobe/` 协议探针推送
@@ -74,15 +81,19 @@ OWS 桌面菜单是**硬编码**的，不动态扫描应用。解法：安装
 |---|---|
 | 自研应用（JS/UX）构建并侧载进手表 | ✅ 二维码应用已在表上运行（每 10 秒自动换码） |
 | 桌面入口 | ✅ PurrLaunch 占位木鱼槽位 |
-| 桌面图标注册 | ✅ `icon_<包名>` 推送法（本项目原创验证） |
+| 桌面图标注册 | ✅ `icon_<包名>` 推送法（本项目真机实测确认，官方文档无记载） |
 | 表端协议逆向（商店通道） | ✅ 传输层全通，档案见 docs/findings/ |
 
 ## 目录
 
 ```
-docs/                 DEV_GUIDE.md（★ 完整开发指南）、PKG_FORMAT.md（CR 包格式规格）、findings/（逆向档案）
+docs/                 DEV_GUIDE.md（★ 完整开发指南）、PKG_FORMAT.md（CR 包格式规格）
+docs/findings/        逆向档案（R14~R21 + master 汇总）
+docs/SOURCES.md       外部资源出处 / 署名 / 核实日期（引用前先看这个）
 apps/qrwatch/         二维码应用源码 + 预构建 bundle.pkg（改 src/main/qr-data.js 换码内容）
+apps/library-qr/      生态示例：合肥市中心图书馆读者证动态码（离线生成）
 apps/purrlaunch-ows/  PurrLaunch v1.2.2 的 OWS 适配 delta（上游: purrrock/PurrLaunch, MIT）
+devices/              gx 设备配置（oppo-rtos-watch.yml，466×466）
 tools/guiyuan-assistant/  瑰元助手 v1.2 APK（镜像分发；原始发布页 pgyer.com/glyphix-assistant）+ 使用说明
 tools/ftprobe/        watchappservice_file 协议探针（含桌面图标注册 fireIconPush）
 tools/pkg_tool.py     Glyphix CR 容器格式读写工具
@@ -112,6 +123,17 @@ tools/pkg_tool.py     Glyphix CR 容器格式读写工具
 - [bandbbs.cn/threads/29508](https://www.bandbbs.cn/threads/29508/) —— OWS 侧载教程（教程作者 libiao0418）
   > 该帖作者是**教程作者**，不是瑰元助手作者（仅为该工具的用户）。瑰元助手的发布页见上一条。
 - [glyphix-os/web-docs](https://github.com/glyphix-os/web-docs) —— Glyphix 官方文档
+
+> 每项外部资源的出处、核实日期、以及"哪些字段能核对、哪些查不到"，都记在 [docs/SOURCES.md](docs/SOURCES.md)。
+
+## 许可证与第三方资源
+
+- 本仓库**原创部分**（文档、`apps/qrwatch`、`apps/library-qr`、`tools/pkg_tool.py`、`tools/ftprobe`、`devices/`）：
+  [MIT](LICENSE)，Copyright (c) 2026 chengchengking。
+- `apps/purrlaunch-ows/`：上游 [purrrock/PurrLaunch](https://github.com/purrrock/PurrLaunch) 为 MIT，本目录是其适配 delta，同样按 MIT 使用。
+- `tools/guiyuan-assistant/` 里的 APK：**版权归该工具作者**，不适用本仓库 MIT。本仓库仅作镜像以便复现，
+  原始发布页为 [pgyer.com/glyphix-assistant](https://www.pgyer.com/glyphix-assistant)；如作者要求移除，联系仓库维护者即删。
+- OPPO / Glyphix 相关商标、系统组件归其各自权利人；本仓库不含其专有代码。
 
 ## 免责声明
 
