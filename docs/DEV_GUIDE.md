@@ -280,7 +280,7 @@ icon 必填 / 商店通道装不上自研包 / 桌面齿轮图标 / 表端深睡
 
 | 仓库路径 | 内容 | 原始工作目录对应项 |
 |---|---|---|
-| `README.md` | 六步上手 | — |
+| `README.md` | 三步上手（手动流程折叠在 details 里） | — |
 | `docs/DEV_GUIDE.md` | 本文档 | `DEV_GUIDE.md` |
 | `docs/PKG_FORMAT.md` | CR 容器格式规格 | `pkg_tools/PKG_FORMAT.md` |
 | `docs/findings/findings_R14~R21*.md` | 各窗口战报（商店协议逆向） | `work/findings_R1x*.md` |
@@ -291,6 +291,7 @@ icon 必填 / 商店通道装不上自研包 / 桌面齿轮图标 / 表端深睡
 | `apps/purrlaunch-ows/` | PurrLaunch 的 OWS 适配 delta | `PurrLaunch/` |
 | `tools/guiyuan-assistant/` | 瑰元助手 APK 镜像 + 说明 | `work/glyphix_assistant/` |
 | `tools/ftprobe/` | 协议探针（含桌面图标注册） | `work/ftprobe*/` |
+| `tools/ows.py` | 一条龙脚本（doctor/setup/build/push/install） | 新增 |
 | `tools/pkg_tool.py` | 包格式读写 | `pkg_tools/pkg_tool.py` |
 | `devices/oppo-rtos-watch.yml` | gx 设备配置 | `%APPDATA%\glyphix\devices\` |
 
